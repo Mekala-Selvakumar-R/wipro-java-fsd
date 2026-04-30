@@ -10,6 +10,7 @@ public class EmployeeStreamDemo {
 	public static void main(String[] args) {
 		
 		List<Employee> employeeList= new EmployeeService().employeeList;
+		
 		// How many male and female employees are there in the organization?
 
 		long maleCount = employeeList.stream().filter(employee -> employee.getGender().equals("Male")).count();
@@ -17,24 +18,30 @@ public class EmployeeStreamDemo {
 		System.out.println("Male Count =" + maleCount);
 		System.out.println("Female Count =" + FemaleCount);
 
+		
 		Map<String, Long> genderCount = employeeList.stream()
 				.collect(Collectors.groupingBy(Employee::getGender, Collectors.counting()));
 		System.out.println(genderCount);
 
 		System.out.println("Distinct Departments");
 		employeeList.stream().map(Employee::getDepartment).distinct().forEach(System.out::println);
-
 		long count = employeeList.stream().map(Employee::getDepartment).distinct().count();
 		System.out.println("Number of distinct departments: " +count);
-
+        System.out.println("----------------------------");
+        
+        
 		Map<String, Long> deptCount = employeeList.stream()
 				.collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
 		System.out.println(deptCount);
+		
+        System.out.println("----------------------------");
+
 		// What is the average age of male and female employees?
 
 		Map<String, Double> averageMap = employeeList.stream()
 				.collect(Collectors.groupingBy(Employee::getGender, Collectors.averagingInt(Employee::getAge)));
 		System.out.println(averageMap);
+        System.out.println("----------------------------");
 
 		Map<String, List<Employee>> byDept = employeeList.stream()
 				.collect(Collectors.groupingBy(Employee::getDepartment));

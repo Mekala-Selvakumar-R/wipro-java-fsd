@@ -11,8 +11,8 @@ public class StreamDemo4 {
 	public static void main(String[] args) {
 
 		int[] array = { 10, 20, 30, 45, 50 };
-
 		IntStream stream1 = Arrays.stream(array);
+		
 		stream1.filter(s -> s % 2 == 0).forEach(System.out::println);
 
 		long r = Stream.of(10, 20, 30).count();
