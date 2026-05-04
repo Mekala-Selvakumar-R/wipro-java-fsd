@@ -5115,21 +5115,11 @@ Speed Up Development: You don't have to "reinvent the wheel" for recurring archi
 Common Vocabulary: Developers can say "this is a Factory" and everyone immediately understands the structure being used.
 Best Practices: They promote loose coupling and high cohesion, making systems easier to test and debug. 
  
+ What is a Design Pattern?
 
+A Design Pattern is a proven, reusable solution to a  commonly occurring problem in software design.
 
- 
-
-
-
-Great topic 👍 — Design Patterns are **very important for interviews, real projects, and writing clean Java code**.
-
----
-
-## What is a Design Pattern?
-
-A **Design Pattern** is a **proven, reusable solution** to a **commonly occurring problem** in software design.
-
-It is **not code**, but a **template / best practice** for how to structure code.
+It is not code, but a template / best practice for how to structure code.
 
 > “Don’t reinvent the wheel — use a standard solution.”
 
@@ -5157,9 +5147,9 @@ It is **not code**, but a **template / best practice** for how to structure code
 * Configuration
 * Database connection manager
 
-### Java Example
+Java Example
 
-```java
+ 
 public class Singleton {
     private static Singleton instance;
 
@@ -5172,22 +5162,22 @@ public class Singleton {
         return instance;
     }
 }
-```
+ 
 
 ---
 
-# 2) Factory Pattern
+ 2) Factory Pattern
 
-**Intent:** Create objects **without exposing the creation logic**.
+Intent: Create objects without exposing the creation logic.
 
-### When to use
+When to use
 
 * When object creation depends on input
 * Hide complex creation logic
 
-### Java Example
+Java Example
 
-```java
+ 
 interface Shape {
     void draw();
 }
@@ -5207,23 +5197,22 @@ class ShapeFactory {
         return null;
     }
 }
-```
+ 
 
 ---
 
-# 3) Observer Pattern
+3) Observer Pattern
 
-**Intent:** One object (Subject) notifies many objects (Observers) automatically.
-
-### When to use
+Intent: One object (Subject) notifies many objects (Observers) automatically.
+When to use
 
 * Event systems
 * Notifications
 * MVC architecture
 
-### Java Example
+Java Example
 
-```java
+ 
 interface Observer {
     void update(String msg);
 }
@@ -5245,22 +5234,22 @@ class Subject {
         }
     }
 }
-```
+ 
 
 ---
 
-# 4) Builder Pattern
+ 4) Builder Pattern
 
-**Intent:** Construct complex objects step by step.
+Intent:  Construct complex objects step by step.
 
-### When to use
+ When to use
 
 * Too many constructor parameters
 * Immutable objects
 
-### Java Example
+ Java Example
 
-```java
+ 
 class Computer {
     private String CPU;
     private String RAM;
@@ -5289,22 +5278,22 @@ class Computer {
         }
     }
 }
-```
+ 
 
 ---
 
-# 5) Prototype Pattern
+ 5) Prototype Pattern
 
-**Intent:** Create new objects by **cloning** an existing object.
+Intent: Create new objects by cloning an existing object.
 
-### When to use
+When to use
 
 * Object creation is costly
 * Need many similar objects
 
-### Java Example
+Java Example
 
-```java
+ 
 class Prototype implements Cloneable {
     int value;
 
@@ -5312,22 +5301,21 @@ class Prototype implements Cloneable {
         return (Prototype) super.clone();
     }
 }
-```
+ 
 
 ---
+ 6) Adapter Pattern
 
-# 6) Adapter Pattern
+Intent:  Convert one interface into another expected by the client.
 
-**Intent:** Convert one interface into another expected by the client.
-
-### When to use
+ When to use
 
 * Integrating old/third-party code
 * Interface mismatch
 
-### Java Example
+ Java Example
 
-```java
+ 
 interface MediaPlayer {
     void play(String audioType);
 }
@@ -5345,22 +5333,21 @@ class Adapter implements MediaPlayer {
         }
     }
 }
-```
+ 
 
 ---
 
-# 7) Decorator Pattern
+ 7) Decorator Pattern
 
-**Intent:** Add new behavior to an object dynamically.
+Intent: Add new behavior to an object dynamically.
 
-### When to use
+When to use
 
 * Add features without modifying existing class
 * Follow Open/Closed Principle
+ Java Example
 
-### Java Example
-
-```java
+ 
 interface Coffee {
     String getDescription();
 }
@@ -5380,22 +5367,22 @@ class MilkDecorator implements Coffee {
         return coffee.getDescription() + ", Milk";
     }
 }
-```
+ 
 
 ---
 
-# 8) Strategy Pattern
+ 8) Strategy Pattern
 
-**Intent:** Define a family of algorithms and make them interchangeable.
+Intent:  Define a family of algorithms and make them interchangeable.
 
-### When to use
+When to use
 
 * Multiple ways to perform a task
 * Avoid if-else or switch
 
-### Java Example
+Java Example
 
-```java
+ 
 interface PaymentStrategy {
     void pay();
 }
@@ -5419,11 +5406,9 @@ class PaymentContext {
         strategy.pay();
     }
 }
-```
+ 
 
----
-
-## Quick Interview Summary Table
+ 
 
 | Pattern   | Purpose              | Real Example        |
 | --------- | -------------------- | ------------------- |
