@@ -54,6 +54,7 @@ public class EmployeeStreamDemo {
 				System.out.println(employee);
 			}
 		}
+        System.out.println("----------------------------");
 
 		double averageMale = employeeList.stream().filter(emp -> emp.getGender().equalsIgnoreCase("Male"))
 				.map(Employee::getAge).collect(Collectors.averagingInt(Integer::intValue));
@@ -63,6 +64,7 @@ public class EmployeeStreamDemo {
 
 		Employee emp1 = employeeList.stream().max((e1, e2) -> (int) (e1.getSalary() - e2.getSalary())).get();
 		System.out.println(emp1);
+        System.out.println("----------------------------");
 
 		Optional<Employee> highestPaidEmployeeWrapper = employeeList.stream()
 				.collect(Collectors.maxBy(Comparator.comparingDouble(Employee::getSalary)));
