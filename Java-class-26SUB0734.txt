@@ -3961,6 +3961,7 @@ Collection
   built in methods are available for manipulation
   only selected interfaces - we have index based operation possible
   hetrogenous (if we want we can make it as a homogenous)
+  Generics - to store homogenous element
 
 Collection
 
@@ -5236,6 +5237,52 @@ class Subject {
 }
  
 
+
+
+The Observer design pattern is a behavioral pattern that defines a one-to-many dependency between objects. 
+When one object (the Subject) changes its state, all its dependents (Observers) are notified and updated automatically.
+
+Think of it like a YouTube subscription: the channel is the Subject, and the subscribers are the Observers. 
+When a new video is uploaded, all subscribers get a notification automatically.
+How It Works
+The pattern relies on a subscription mechanism with four core parts:
+
+Subject (Observable): 
+
+Maintains a list of observers and provides methods to attach, detach, and notify them.
+
+Observer Interface: 
+
+Declares the update() method that the subject calls to push notifications.
+
+Concrete Subject: 
+The actual object being watched (e.g., a Weather Station) that triggers notifications when its data changes.
+
+Concrete Observer: 
+The objects receiving updates (e.g., a Phone App) and reacting to them.
+
+Why Use It?
+Loose Coupling: 
+The Subject doesn't need to know the specific classes of its Observers, only that they implement the Observer interface.
+
+Dynamic Relationships:
+ You can add or remove subscribers at runtime without changing any code in the Subject
+
+.Broadcast Communication: 
+It allows one object to efficiently update an unknown number of other objects simultaneously.
+
+Observer in Modern Java
+While Java originally provided a built-in java.util.Observable class, it has been deprecated since Java 9. 
+Modern Java development typically uses:
+PropertyChangeListener: Found in the java.beans package, commonly used for UI and data binding.
+Flow API: Introduced in Java 9 for reactive "publish-subscribe" streams.
+Custom Implementation: Many developers prefer writing their own simple interfaces to avoid the limitations of legacy built-in classes.
+
+Common Real-World Uses:
+GUI Event Handling: Button clicks in Swing use listeners (observers) to trigger actions.
+Stock Market Apps: Notifying multiple dashboards when a stock price changes.
+MVC Architecture: The "Model" acts as the subject, notifying various "Views" to refresh when data changes.
+
 ---
 
  4) Builder Pattern
@@ -5286,6 +5333,12 @@ class Computer {
 
 Intent: Create new objects by cloning an existing object.
 
+The Prototype design pattern is a creational pattern used when creating a new object from scratch is expensive, complex, or time-consuming. Instead of using the new keyword, you copy (clone) an existing object—the "prototype"—and then customize the clone if needed.
+When to use it
+When object creation involves heavy database queries or complex calculations.
+When you have many similar objects that only differ by a few attributes.
+To avoid a complex hierarchy of factories.
+
 When to use
 
 * Object creation is costly
@@ -5304,8 +5357,16 @@ class Prototype implements Cloneable {
  
 
 ---
+
+Structural patterns are all about how classes and objects are put together to form larger, more flexible structures.
+
+While Creational patterns focus on how an object is created, Structural patterns focus on how they are composed or connected so that if one part of the system changes, the whole thing doesn't break. They help ensure that different libraries or incompatible interfaces can work together seamlessly.
+
+
  6) Adapter Pattern
 
+Acts as a bridge between two incompatible interfaces. 
+Think of it like a travel power adapter that lets a three-prong plug fit into a two-prong socket.
 Intent:  Convert one interface into another expected by the client.
 
  When to use
@@ -5334,12 +5395,15 @@ class Adapter implements MediaPlayer {
     }
 }
  
+In the Java standard library, Arrays.asList() is a classic adapter. It takes an Array (Adaptee) and makes it look like a List (Target Interface) so you can use it with collections-based code.
 
 ---
 
  7) Decorator Pattern
 
 Intent: Add new behavior to an object dynamically.
+
+Decorator Pattern: Allows you to add new behavior to an object dynamically without changing its code. It’s like adding toppings to a pizza—the base pizza stays the same, but you’ve added extra "features."
 
 When to use
 
@@ -5371,7 +5435,13 @@ class MilkDecorator implements Coffee {
 
 ---
 
+The Strategy design pattern is a behavioral pattern that lets you define a family of algorithms, put each one into a separate class, and make their objects interchangeable.Instead of having one massive class that handles multiple ways of doing something with complex if-else or switch statements, you delegate the task to a "Strategy" object.
+
+The Real-World Analogy: Maps & NavigationThink of a Navigation app (like Google Maps). To get from point A to B, the app can use different strategies: Walking, Driving, Cycling, or Public Transport. The "Context" (the map) stays the same, but the "Strategy" (the routing algorithm) changes based on your choice.
+
  8) Strategy Pattern
+
+
 
 Intent:  Define a family of algorithms and make them interchangeable.
 
@@ -5407,7 +5477,59 @@ class PaymentContext {
     }
 }
  
+ * The Strategy design pattern is a behavioral pattern that lets you 
+ * define a family of algorithms, put each one into a separate class, 
+ * and make their objects interchangeable.
+ * 
+ * Instead of having one massive class that handles multiple ways of doing something with 
+ *  * complex if-else or switch statements, you delegate the task to a "Strategy" object.
+ * 
+ * Open/Closed Principle: You can add new algorithms (strategies) without changing the existing code.
+ * Clean Code: It removes long, nested conditional logic.
+ * Runtime Flexibility: You can swap behaviors while the application is running.
+ */
+public class StragtegyDemo {
 
+	public static void main(String[] args) {
+		ShoppingCart cart = new ShoppingCart();
+
+		// Use UPI
+		cart.setPaymentStrategy(new UpiPayment());
+		cart.checkout(500);
+
+		// Change mind and use Credit Card
+		cart.setPaymentStrategy(new CreditCardPayment());
+		cart.checkout(1200);
+
+		cart.setPaymentStrategy(new CashPayment());
+		cart.checkout(4000);
+
+	}
+
+}
+//Payment System
+
+interface PaymentStrategy {
+	void pay(int amount);
+}
+
+class UpiPayment implements PaymentStrategy {
+	public void pay(int amount) {
+		System.out.println("Paid ₹" + amount + " using UPI.");
+	}
+}
+
+class CreditCardPayment implements PaymentStrategy {
+	public void pay(int amount) {
+		System.out.println("Paid ₹" + amount + " using Credit Card.");
+	}
+}
+
+class CashPayment implements PaymentStrategy {
+	public void pay(int amount) {
+		System.out.println("Paid ₹" + amount + " By Cash on Delivery.");
+	}
+}
  
 
 | Pattern   | Purpose              | Real Example        |
@@ -5426,8 +5548,952 @@ class PaymentContext {
  
 
 
+----------------------------
+
+
+OS
+
+  
+DOS  - Disk Operating System
+
+Command Line Interface  CLI
+no GUI
+
+C:\>date
+  
+  >dir
+only process at a time
+Single User Single tasking operating system
+
+Windows
+   Single User, Multi tasking os
+each and every user has their own login credential
+   - at the same time only one use can share the resources
+User can perform multiple tasks
+  - use msword, ms excel, ppt,  chrome browser, vscode, sts
+
+
+UNIX
+
+Multi user , multi tasking os
+
+multi taskking - one userr can perform multiple tasks at the same time
+
+Multi user  - resources shared by  multiple user
+
+Client server
+
+                          server
+
+
+    client1         client2    client3    client4
+client programs are executed in the server
+
+client1  - prg1 prg11
+client2 - prg2  prg22
+client3  prg3  prg33
+
+
+
+Round Robin  - time slot
+
+  Scheduler
+  
+
+   prg1 - 10ms
+   prg2 - 10ms
+prg 11 - 10ms
+prg 3 - 10ms
+prg22 -10ms
+prg33-10ms
+
+again it will take prg1 - 10ms 
+
+
+
+Program in execution  -- Process
+
+A process is an independent program in execution with its own memory space,
+ while a thread is a lightweight unit of execution within a process,
+ sharing memory with other threads.
+ Processes are isolated (high security, slower communication) whereas
+ threads are shared (fast communication, risk of crashing the parent process).
+
+Threads are sharing the memory space of Process
+
+Threads are reside inside the process
+
+If you are not creating a Thread, then your process is called  single Thread
+
+
+A Thread is a lightweight process that can run independently  but shares memory with other threads in the same process
+
+A Thread is the smallest unit of execution inside a program (Process)
+
+Thread -
+Runs inside a Process
+Shares - Memory (Heap), Resources
+Has its  own - Stack, Program Counter
+
+Each and every thread has its own stack
+
+Word  --  process
+  autosave  -thread1
+  spell check - thread2
+
+Process - if you not define any thread - single thread
+
+MultiProcessing : IN windows   you can run word, excel, ppt, media player at the same time . You will working on word and in parallel  media player  might  play some music
+ 
+multithreading
+    
+ - it refers  to multi threads of control within a single program
+ Each program can run multiple threads of control within it
+
+eg:
+Word  --  process
+  autosave  -thread1
+  spell check - thread2
+
+Advantage :
+ To reduce the response (execution) time of a process
+ Increase  System efficiency
+ Requires less overheads compared to multi tasking
+
+
+SIngle Thread
+
+Validate User Citizenship  - 3s
+Validate UserDetails  - 4s
+
+
+totallt  - 7s - to complete the registration process
+  Thread1                                         Thread2
+
+Validate User Citizenship  - 3s                  Validate UserDetails  - 4s
+
+max : 4s
+
+ 
+-------------------
+
+1. Program  execution starts
+  2.  JVM starts
+          JVM is  launched
+          It initalizes
+               Class Loader
+               Memory Area ( Heap, Stack, Method Area) - PC
+3. Class Loading
+       JVM Loads Main class (user defined class with main method) using the class loader
+        Byte code (Main.class) is brought into Memory
+4.  Main method detection
+       -  JVM  looks for this exact signature
+              public static void main(String []args)
+  if not found - run time error
+
+5.  JVM creates the Main Thread
+    JVM creates the thread internally , called Main Thread (Application Thread)
+   This is the first thread of your application
+6. Main Thread calls main() method
+     Main thread start execution
+           it invokes  main method
+7. Stack Frame Creation
+        A stack frame is created for the main() method
+      stored in the main thread's stack
+8.  Execution begins
+     code inside main() starts executing line by line
+
+Program Termination
+  when
+        main() method completed
+         All non-daemon thread finsih
+
+JVM shuts down
+ 
+
+Thread - Class
+Runnable - interface
+
+
+Each and every thread has its private run-time stack for storing variables and data
+
+If two threads execute the same method , each will have its own copy of the stack to store the method local variable
+
+The objects instance variables are shared across all the thread they are not thread safe
+
+
+public class Calculator{
+ int result =100;
+ public  void add(int a, int b) {
+   int sum = a+b;
+}
+
+
+Assume  two threads are execute the above threads
+
+Thread t1  a=3  , b=2
+Thread t2 = a=1, b=5
+
+Assume thread t1 sets the  variable result = 2000  - shared by both thread , so if t2 access result -> 2000
+
+
+           result=2000          
+c=5                              c=6
+b=2                              b=5
+a=3                              a=1
+t1 stack                       t2 stack
+
+
+----
+Thread life cycle
+
+Programmer
+  
+ Create a Thread class
+
+Create a Thread oBject     - new born state
+
+Calls the start method on newly created Thread Object   
+
+
+when the start method is invoked the Thread moves into the runnable state, The Scheduler based on the time slotexcutes the thread
+ (based  on the priority)
+
+
+Runnable state
+        When scheduler executes the thread 
+
+Running state
+               when sleep or yield method is invoked
+                          
+              Blocked state
+                              (go back from blocked to running  --> when sleep or yield method time is over)
+
+ Thread finishes execution
+Dead state
+
+
+Execution of multiple threads on a single CPU , in  some order is called scheduling
+
+The Java runtime supports a very simple , deterministic scheduling  preemptive priority  scheduling algorithm
+
+This algorithm schedules  threads based on their priority
+
+At the given time  when multiple threads are ready to be executed, the runtime system chooses the runnable thread with the highest priority for execution
+
+Low priority thread gets a chance  only when  thread with  high priorit move to a non runnable state
+
+
+Daemon Threads - are background threads , that provide services to other threads
+  Eg: Garbage Collector
+
+
+Java CM  can not exit if non-daemon threads are executing
+JVM can exit  Daemn threads are executing
+Daemon threads die when the JVM exits
+
+
+Thread Group
+  - represents the set of threads
+  - thread groups are typicaly used if a collection of similar threads needs to be collectively managed .  These threads will be added to a thread group
+
+ A thread group can also include other thread groups
+
+A thread groups forma tree in which every thread group except the inital thread group has a parent'
+
+
+---
+
+Runnable interface
 
 
 
 
+Thread or Runnable
 
+Runnable - correct
+
+why
+ extends Thread - you can't extend any other class
+
+using  - implements Runnable
+class can extend other class even it can impkements other interfaces
+
+---------------
+A race condition happens when two or more threads access and modify shared data at the same time, and the final result depends on the timing (race) between them.
+
+Multiple threads “race” to update the same variable → unpredictable / wrong result.
+
+ex:
+
+Two threads increment the same counter 1000 times.
+
+class Counter {
+    int count = 0;
+
+    void increment() {
+        count++;   // Not atomic
+    }
+}
+
+Counter c = new Counter();
+
+Thread t1 = new Thread(() -> {
+    for(int i=0;i<1000;i++) c.increment();
+});
+
+Thread t2 = new Thread(() -> {
+    for(int i=0;i<1000;i++) c.increment();
+});
+
+t1.start();
+
+t2.start();
+
+Expected output : 2000
+
+Actual output : 
+
+1378, 1821, 1993...
+
+
+Because count++ is 3 steps:
+
+Read count
+Add 1
+Write back
+
+If threads interleave, updates are lost.
+
+
+Why It Happens
+
+Shared mutable data
+No synchronization
+Non-atomic operations
+Thread scheduling is unpredictable
+
+
+How to Fix Race Condition
+Synchronizing   - means access a shared data or method execution logic in a multithreaded application is controller in such a way that only one thread can access method/shared data at a time . The other threads will wait till the thread releases the control. The shared data is considered  to be Thread safe
+java -- >monitor
+
+
+entering the room  -->  acquiring the monitor
+occupy the room --> owing the monitor
+      - exclusive access  to the data
+Leaveing the room  ->  release the monitor
+
+public class SyncClass{
+
+public synchornized void methodA(){
+}
+}
+
+public class SyncClass{
+
+public  void methodA(){
+
+  synchronized(this){
+           //  stmts which needs to be synchronized
+         }
+
+}
+}
+
+
+1) synchronized method/block
+
+synchronized void increment() {
+    count++;
+}
+
+
+
+2) AtomicInteger (Best for counters)
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+AtomicInteger count = new AtomicInteger(0);
+count.incrementAndGet();
+
+3) Lock (ReentrantLock)
+
+Lock lock = new ReentrantLock();
+
+void increment() {
+    lock.lock();
+    try {
+        count++;
+    } finally {
+        lock.unlock();
+    }
+}
+
+Real-Time Scenario
+
+Bank Account Transfer
+
+Two threads withdraw money at the same time:
+
+Balance = 1000
+Thread1 withdraws 800
+Thread2 withdraws 500
+
+Both read 1000 → final balance becomes wrong (negative / inconsistent).
+
+---------------
+
+Inter-Thread Communication in Java
+
+Inter-thread communication is a mechanism where threads coordinate with each other by waiting and notifying based on a shared condition.
+
+Instead of busy waiting (checking in a loop), threads sleep efficiently until another thread signals them.
+
+Achieved using: wait(), notify(), notifyAll() from Object class, inside synchronized blocks.
+
+Why We Need It
+
+Producer should wait if buffer is full
+Consumer should wait if buffer is empty
+Avoid CPU waste and race conditions
+Proper coordination between threads
+
+
+Classic Example — Producer & Consumer (Single Item Buffer)
+Shared Resource
+
+
+class Buffer {
+    private int data;
+    private boolean hasData = false;
+
+    public synchronized void produce(int value) throws InterruptedException {
+        while (hasData) {
+            wait(); // wait until data is consumed
+        }
+        data = value;
+        System.out.println("Produced: " + value);
+        hasData = true;
+        notify(); // notify consumer
+    }
+
+    public synchronized void consume() throws InterruptedException {
+        while (!hasData) {
+            wait(); // wait until data is produced
+        }
+        System.out.println("Consumed: " + data);
+        hasData = false;
+        notify(); // notify producer
+    }
+}
+Producer Thread
+class Producer extends Thread {
+    private Buffer buffer;
+
+    Producer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
+    public void run() {
+        try {
+            for (int i = 1; i <= 5; i++) {
+                buffer.produce(i);
+            }
+        } catch (InterruptedException e) {}
+    }
+}
+Consumer Thread
+class Consumer extends Thread {
+    private Buffer buffer;
+
+    Consumer(Buffer buffer) {
+        this.buffer = buffer;
+    }
+
+    public void run() {
+        try {
+            for (int i = 1; i <= 5; i++) {
+                buffer.consume();
+            }
+        } catch (InterruptedException e) {}
+    }
+}
+Main Class
+public class Test {
+    public static void main(String[] args) {
+        Buffer buffer = new Buffer();
+        new Producer(buffer).start();
+        new Consumer(buffer).start();
+    }
+}
+How It Works
+If producer finds data not yet consumed → wait()
+Consumer consumes → calls notify()
+Producer wakes up and produces next item
+
+Important Rules
+wait(), notify(), notifyAll() must be inside synchronized
+Always use while, not if (to re-check condition)
+They belong to Object class
+
+
+DeadLock :
+
+ situation where two or more threads are  blocked forever waiting for each other
+
+Thread1          Thread2
+
+R1                 R2
+R2                 R1
+
+
+--------------------------------------------------------------------------
+Java Concurrency Utilities (`java.util.concurrent`), Thread Safety & Best Practices
+
+Modern Java concurrency avoids low-level `wait/notify` and uses the powerful utilities in `java.util.concurrent` for safer, scalable multithreading.
+
+---
+
+Key Packages & What They Solve
+
+| Package/Class             | Purpose                                            |
+| ------------------------- | -------------------------------------------------- |
+| `ExecutorService`         | Manage thread pools (no manual thread creation)    |
+| `Callable`, `Future`      | Return values from threads                         |
+| `Locks` (`ReentrantLock`) | Flexible locking vs `synchronized`                 |
+| `Atomic` classes          | Lock-free thread-safe variables                    |
+| Concurrent Collections    | Thread-safe data structures                        |
+| Synchronizers             | Coordinate threads (latches, barriers, semaphores) |
+
+---
+Task A -->Task B --TaskC
+
+concurrent
+
+Task A
+Task B
+Task C            running together
+
+    multiple threads working together to improve performance and efficiency
+
+ 1) Executor Framework — Thread Pools
+   high level API for managing and controlling threads. Instead of creating and manging threads , we delegate the responsiblity to the framework
+
+Problem: Creating threads manually is costly and hard to manage.
+
+manually :
+ new Thread(()->{
+  System.out,println("Hi");
+ } ).start();
+
+--Too many threads -- > performance issues
+Hard to manage lifecycle
+No COntrol over the thread reuse
+
+Solution:  Use a pool.
+Executor Framework provides a thread pool and separates
+Task Submission (what to do)
+Task execution (how it's done)
+
+you submit tasks --> Framework runs them using a pool of threads
+ 
+ExecutorService service = Executors.newFixedThreadPool(3);
+
+service.submit(() -> {
+    System.out.println("Task executed by " + Thread.currentThread().getName());
+});
+
+service.shutdown();
+ 
+
+Use when: Background jobs, APIs, batch tasks.
+
+Main Componenets
+Executor  - interface
+ExecutorService  - interface - most important
+      extends  Executor
+      - provides lifecycle control
+
+ThreadPool
+    - A pool of reusable threads
+     - Avoids creating threads again and again
+
+Executors - utility class
+   used to create thread pools easily
+---
+
+2) Callable & Future — Get Results from Threads
+
+ 
+ExecutorService service = Executors.newSingleThreadExecutor();
+
+Callable<Integer> task = () -> 10 + 20;
+
+Future<Integer> result = service.submit(task);
+System.out.println(result.get()); // 30
+
+service.shutdown();
+ 
+
+Use when: Need return value from async task.
+
+---
+
+3) Locks — `ReentrantLock`
+
+More control than `synchronized`.
+
+ 
+Lock lock = new ReentrantLock();
+
+lock.lock();
+try {
+    // critical section
+} finally {
+    lock.unlock();
+}
+ 
+
+Benefits: tryLock, fairness, interruptible lock.
+
+---
+
+4) Atomic Classes — Lock-Free Thread Safety
+
+ 
+AtomicInteger count = new AtomicInteger(0);
+count.incrementAndGet();
+ 
+
+Classes: `AtomicInteger`, `AtomicLong`, `AtomicBoolean`, `AtomicReference`
+
+Use when: Counters, flags, shared numbers.
+
+---
+
+5) Concurrent Collections
+
+| Normal      | Thread-safe Version     |
+| ----------- | ----------------------- |
+| `ArrayList` | `CopyOnWriteArrayList`  |
+| `HashMap`   | `ConcurrentHashMap`     |
+| `HashSet`   | `ConcurrentSkipListSet` |
+| `Queue`     | `ConcurrentLinkedQueue` |
+
+ 
+ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+map.put("A", 1);
+ 
+
+---
+
+6) Synchronizers (Thread Coordination)
+
+CountDownLatch
+
+Wait until tasks finish.
+
+ 
+CountDownLatch latch = new CountDownLatch(3);
+
+latch.countDown();
+latch.await();
+ 
+
+Semaphore
+
+Limit number of threads accessing a resource.
+
+ 
+Semaphore sem = new Semaphore(2);
+sem.acquire();
+// use resource
+sem.release();
+ 
+
+CyclicBarrier
+
+All threads wait for each other.
+
+ 
+CyclicBarrier barrier = new CyclicBarrier(3);
+barrier.await();
+ 
+
+---
+ What is Thread Safety?
+
+A class is  thread-safe  if it behaves correctly when accessed by multiple threads without data corruption
+
+---
+
+## Thread Safety Best Practices
+
+| Practice                                       | Why                        |
+| ---------------------------------------------- | -------------------------- |
+| Prefer **ExecutorService** over `new Thread()` | Better resource management |
+| Use **Atomic classes** for counters            | No locks needed            |
+| Use **Concurrent collections**                 | Avoid manual sync          |
+| Minimize shared mutable state                  | Fewer race conditions      |
+| Use **immutable objects**                      | Naturally thread-safe      |
+| Use `synchronized` or `Lock` only when needed  | Avoid contention           |
+| Always unlock in `finally`                     | Prevent deadlocks          |
+| Avoid nested locks                             | Prevent deadlocks          |
+| Use `while` with `wait()`                      | Handle spurious wakeups    |
+
+---
+
+ 
+
+* “We used ExecutorService to manage thread pools instead of creating threads manually.”
+* “AtomicInteger helped us avoid synchronization for counters.”
+* “ConcurrentHashMap ensured thread-safe reads/writes with high performance.”
+* “CountDownLatch was used to wait for parallel tasks to complete.”
+
+---
+
+When to Use What
+
+| Situation                | Best Utility      |
+| ------------------------ | ----------------- |
+| Many background tasks    | ExecutorService   |
+| Need result from thread  | Callable + Future |
+| Shared counter           | AtomicInteger     |
+| Shared map               | ConcurrentHashMap |
+| Limit access to resource | Semaphore         |
+| Wait for tasks to finish | CountDownLatch    |
+| Complex locking          | ReentrantLock     |
+
+---
+
+ 
+
+> Prefer high-level concurrency utilities from `java.util.concurrent` to write safe, scalable, and maintainable  multithreaded Java code.
+
+
+--------------------
+
+
+
+abstract class or concrete class     interfacce
+
+
+ myclass extends  abstract class
+  - implement the   abstract method
+
+ or
+myclass extends  concrete class
+
+or
+
+myclass implements interface-
+   - implement the abstract method 
+
+
+
+myclass extends abstratclass impmements interface
+
+----------------
+
+
+--------------------------------
+
+Virtual Threads in Java (Project Loom)
+
+A Virtual Thread is a lightweight thread introduced in Java 21 (as a stable feature) that is managed by the JVM, not the OS.
+
+Virtual Threads are lightweight threads managed by the JVM (not the OS) that let you run millions of concurrent tasks  with simple blocking code.
+
+> “Write thread-per-request code without the scalability problems of platform threads.”
+
+Introduced as a preview in Java 19/20 and **stable in Java 21**.
+
+---
+
+## Why We Needed Virtual Threads
+
+**Problem with traditional (platform) threads:**
+
+* 1 thread = 1 OS thread
+* Heavy memory (~1MB stack each)
+* Context switching is costly
+* Thread pools required to limit count
+* Blocking I/O wastes threads
+
+**Virtual threads solve this:**
+
+* Tiny memory footprint
+* Created in huge numbers
+* JVM schedules them efficiently
+* Blocking I/O doesn’t block an OS thread
+
+---
+
+## Create a Virtual Thread (Java 21)
+
+ 
+Thread.startVirtualThread(() -> {
+    System.out.println("Running in virtual thread");
+});
+
+Or with an executor:
+
+try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+    executor.submit(() -> {
+        System.out.println("Task");
+    });
+}
+ 
+
+---
+
+## Key Characteristics
+
+| Platform Thread     | Virtual Thread    |
+| ------------------- | ----------------- |
+| OS managed          | JVM managed       |
+| Heavy               | Very lightweight  |
+| Limited (thousands) | Millions possible |
+| Needs pools         | No pool needed    |
+| Blocking is costly  | Blocking is cheap |
+
+---
+
+## When to Use
+
+Best for:
+
+* Web servers (request per thread)
+* DB calls, API calls (blocking I/O)
+* Microservices
+* High concurrency apps
+
+Not ideal for:
+
+* CPU-heavy parallel computation (use ForkJoin/parallel streams)
+
+---
+
+## Mental Model
+
+Virtual thread parks when waiting (I/O, sleep, lock) → OS thread is freed → another virtual thread runs.
+
+---
+> “Virtual threads are lightweight JVM-managed threads introduced in Java 21 that allow massive concurrency with simple blocking code, without the overhead of OS threads.”
+
+ Simple Example — 10,000 Tasks
+
+ 
+try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    for (int i = 0; i < 10_000; i++) {
+        executor.submit(() -> {
+            Thread.sleep(1000);
+            return null;
+        });
+    }
+}
+ 
+
+This would be impractical with platform threads, but easy with virtual threads.
+
+---
+ Best Practices
+
+* Don’t pool virtual threads
+* Write normal blocking code
+* Great replacement for complex async code (`CompletableFuture`) in I/O apps
+
+------------
+
+//  Way 1 — Thread.ofVirtual()
+Thread vThread = Thread.ofVirtual()
+        .name("my-virtual-thread")
+        .start(() -> System.out.println("Hello from Virtual Thread!"));
+
+vThread.join();
+
+//  Way 2 — Thread.startVirtualThread() (quickest)
+Thread t = Thread.startVirtualThread(() ->
+        System.out.println("Quick virtual thread!"));
+t.join();
+
+//  Way 3 — Virtual Thread ExecutorService (most common in apps)
+try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    executor.submit(() -> System.out.println("Task 1"));
+    executor.submit(() -> System.out.println("Task 2"));
+} // auto shutdown
+
+//  Way 4 — Thread.Builder
+Thread.Builder builder = Thread.ofVirtual().name("worker-", 1);
+Thread t1 = builder.start(() -> System.out.println("Worker 1"));
+Thread t2 = builder.start(() -> System.out.println("Worker 2"));
+t1.join(); t2.join();
+
+
+
+public class VirtualThreadDemo {
+
+    public static void main(String[] args) {
+
+        System.out.println("Main Started");
+
+        Thread virtualThread = Thread.startVirtualThread(() -> {
+
+            System.out.println(
+                "Running inside Virtual Thread : "
+                + Thread.currentThread()
+            );
+
+            try {
+                Thread.sleep(3000);
+
+                System.out.println("Task Completed");
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        System.out.println("Main Ended");
+
+        try {
+            virtualThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+----
+
+
+public class MultipleVirtualThreads {
+
+    public static void main(String[] args) throws Exception {
+
+        for (int i = 1; i <= 10_000; i++) {
+
+            int taskNumber = i;
+
+            Thread.startVirtualThread(() -> {
+
+                System.out.println(
+                    "Task " + taskNumber +
+                    " : " + Thread.currentThread()
+                );
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        Thread.sleep(5000);
+
+        System.out.println("All Tasks Completed");
+    }
+}

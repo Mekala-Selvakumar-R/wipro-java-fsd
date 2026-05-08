@@ -1,6 +1,7 @@
 package com.demo.day8;
 
 import java.time.LocalDate;
+// Separates the construction of a complex object from its representation, allowing for step-by-step creation.
 
 public class BuilderDemo1 {
 

@@ -1,0 +1,804 @@
+
+What is a Virtual Thread?
+A Virtual Thread is a lightweight thread introduced in Java 21 (as a stable feature) that is managed by the JVM, not the OS.
+
+Traditional (Platform) Thread:         Virtual Thread:
+┌─────────────────────┐         ┌─────────────────────┐
+│    Java Thread             │         │   Virtual Thread           │
+│         ↕                  │         |         ↕                  │
+│    OS Thread               │         │   JVM Scheduler           │
+│         ↕                  │         │         ↕                 │
+│    CPU Core                │         │  Carrier Thread(few)      │
+└─────────────────────┘         │         ↕                 │
+                                       │    OS Thread              │
+1 Java Thread = 1 OS Thread            │         ↕                 │
+Very expensive! (~1MB each)            │    CPU Core               │
+                                       └─────────────────────┘
+                                       Millions of VThreads →
+                                       few OS Threads 
+
+core architectural difference between Traditional Platform Threads and Virtual Threads in Java.
+
+Let’s break it down layer by layer.
+
+---
+
+ 1. Traditional Platform Thread
+
+ 
+┌─────────────────────┐
+│    Java Thread             │
+│         ↕                  │
+│    OS Thread               │
+│         ↕                  │
+│    CPU Core                │
+└─────────────────────┘
+ 
+
+---
+ What Happens Here?
+
+When you create:
+
+ 
+new Thread(() -> {
+    System.out.println("Hello");
+}).start();
+ 
+
+Java asks the Operating System to create a real thread.
+
+So:
+
+1 Java Thread = 1 OS Thread
+---
+
+Layer-by-Layer Explanation
+
+---
+
+ Layer 1: Java Thread
+
+This is the thread object created in Java.
+
+Example:
+ 
+Thread t1 = new Thread();
+ 
+This is what the developer sees.
+
+---
+Layer 2: OS Thread
+
+Under the hood:
+
+* JVM requests the Operating System
+* OS creates a real/native thread
+
+Examples:
+
+* Windows thread
+* Linux pthread
+
+These are managed directly by the OS scheduler.
+
+---
+
+ Layer 3: CPU Core
+
+The OS thread runs on an actual CPU core.
+
+Example:
+
+ 
+CPU Core 1 → Thread A
+CPU Core 2 → Thread B
+ 
+
+The OS decides:
+
+* which thread runs
+* when it pauses
+* when it resumes
+
+This is called:
+
+> Context Switching
+
+---
+Why Platform Threads Are Expensive
+
+Each OS thread needs:
+
+| Resource            | Cost      |
+| ------------------- | --------- |
+| Thread stack memory | ~1 MB     |
+| OS scheduling       | Expensive |
+| Context switching   | Slow      |
+| Kernel management   | Heavy     |
+
+---
+Problem Example
+Suppose:
+10,000 users connect to server
+ 
+If each request uses 1 thread:
+10,000 Java Threads → 10,000 OS Threads
+ 
+Memory alone: 10,000 × 1 MB = 10 GB RAM
+Very expensive.
+
+---
+ Another Big Problem: Blocking
+
+Suppose thread does: Thread.sleep(5000);
+
+or databaseCall();
+ 
+During this waiting time:
+OS Thread sits idle
+but still consumes memory/resources
+This is inefficient.
+
+---
+
+==========================================
+
+ 2. Virtual Thread Architecture
+
+==========================================
+
+ 
+┌─────────────────────┐
+│   Virtual Thread           │
+│         ↕                  │
+│   JVM Scheduler            │
+│         ↕                  │
+│  Carrier Thread(few)       │
+│         ↕                  │
+│    OS Thread               │
+│         ↕                  │
+│    CPU Core                │
+└─────────────────────┘
+This is the revolutionary part.
+ 
+ Main Idea
+
+Now:  
+Millions of Virtual Threads
+share a small number of OS threads
+ 
+Instead of: 1 Java Thread = 1 OS Thread
+ 
+We now have: 
+ 
+Millions of Virtual Threads
+        ↓
+Few Carrier Threads
+        ↓
+Few OS Threads
+---
+ Layer-by-Layer Explanation
+
+---
+
+Layer 1: Virtual Thread
+
+Created like:
+ 
+Thread.startVirtualThread(() -> {
+    System.out.println("Running");
+});
+ 
+This thread is:
+
+* lightweight
+* managed by JVM
+* NOT directly mapped to OS thread
+
+---
+ Layer 2: JVM Scheduler
+
+This is the most important component.
+The JVM itself schedules:
+
+* which virtual thread runs
+* which pauses
+* which resumes
+
+So scheduling is moved from:
+OS  →  JVM
+This makes switching much faster.
+
+---
+Layer 3: Carrier Thread
+
+A Carrier Thread is:
+
+A Carrier Thread is a real platform (OS) thread used internally by the JVM to execute Virtual Threads in Java 21.
+> A normal platform/OS thread used to execute virtual threads.
+A Carrier Thread is the underlying OS thread that temporarily “carries” and executes a virtual thread.
+
+Think of it like:
+ 
+Carrier Thread = Vehicle
+Virtual Threads = Passengers
+
+Virtual threads are lightweight and cannot directly run on CPU.
+
+So JVM uses a small number of real threads called:
+
+Carrier Threads
+
+to actually execute them.
+ 
+Example:
+ 
+1 Carrier Thread  may run thousands of Virtual Threads
+
+
+Many virtual threads can share the same carrier thread.
+
+Example:
+
+1000 Virtual Threads
+        ↓
+   5 Carrier Threads
+
+This is why virtual threads scale so well.
+---
+
+Layer 4: OS Thread
+
+Carrier threads are still backed by real OS threads.
+
+But now you only need:  
+Few OS Threads
+instead of millions.
+
+---
+
+Layer 5: CPU Core
+
+Finally, OS threads run on CPU cores.
+
+---
+
+Biggest Advantage: Blocking Becomes Cheap
+
+Suppose virtual thread does: Thread.sleep(5000);
+What happens?
+
+---
+
+Platform Thread : OS thread blocked for 5 seconds
+Wasteful.
+---
+Virtual Thread
+
+JVM does this:
+ 
+1. Pause virtual thread
+2. Remove it from carrier thread
+3. Carrier thread becomes free
+4. Run another virtual thread
+ 
+This is called:  Unmounting / Parking
+Later JVM resumes it.
+
+---
+Real Example
+
+Imagine: 1 million API requests
+
+Each request waits for:
+
+* DB
+* network
+* external API
+
+With platform threads: impossible or extremely costly
+
+With virtual threads: manageable
+
+---
+
+Visual Analogy
+
+---
+
+Platform Thread Model
+
+1 Passenger → 1 Car
+Very costly.
+
+---
+
+Virtual Thread Model
+ 
+1000 Passengers → Shared Bus
+
+Efficient.
+
+---
+
+Important Term: Mounting
+
+When virtual thread runs: Virtual Thread mounted onto Carrier Thread
+ 
+
+When blocked:  
+Virtual Thread unmounted
+Carrier reused
+ 
+---
+Why Virtual Threads Scale So Well
+
+Because most server applications spend time:
+WAITING
+not computing.
+
+Examples:
+
+* DB query
+* HTTP call
+* file read
+
+Virtual threads optimize waiting.
+
+---
+
+ Internal Flow Example
+
+---
+Step 1
+Thread.startVirtualThread(task);
+Create lightweight thread object.
+
+---
+Step 2
+
+JVM scheduler assigns it to carrier thread.
+
+---
+
+Step 3
+
+Carrier thread uses OS thread.
+
+---
+
+## Step 4
+
+Task blocks on DB/API call.
+
+---
+
+Step 5
+
+JVM parks virtual thread.
+
+Carrier thread freed immediately.
+
+---
+
+Step 6
+
+When DB response arrives:
+
+JVM resumes virtual thread.
+
+---
+
+ Memory Comparison
+
+| Type            | Approx Memory |
+| --------------- | ------------- |
+| Platform Thread | ~1 MB         |
+| Virtual Thread  | Few KB        |
+
+---
+
+Massive Concurrency
+
+Possible now:
+ 
+1,000,000 virtual threads
+ 
+on ordinary hardware.
+
+---
+ Important Note
+
+Virtual threads are NOT faster for CPU work.
+
+For CPU-intensive tasks:
+
+* platform threads still important
+* limited by CPU cores
+
+Virtual threads mainly improve:
+
+* concurrency
+* scalability
+* blocking I/O handling
+
+
+Final Summary
+
+Traditional Thread
+
+Java Thread → OS Thread → CPU
+* Heavy
+* Expensive
+* Limited scalability
+
+---
+Virtual Thread
+ 
+Virtual Thread → JVM Scheduler → Carrier Thread → OS Thread → CPU
+ 
+
+* Lightweight
+* JVM managed
+* Millions possible
+* Excellent for I/O operations
+
+
+> Virtual Threads decouple Java threads from OS threads, allowing millions of lightweight concurrent tasks to run efficiently using a small pool of carrier OS threads managed by the JVM scheduler.
+
+---------------------------
+
+The Core Problem Virtual Threads Solve
+
+❌ Traditional Thread — Blocking I/O wastes OS thread:
+
+Thread-1: [===DB CALL===waiting====waiting====waiting===] done
+Thread-2:                    [can't start — OS threads exhausted!]
+
+✅ Virtual Thread — JVM parks and reuses carrier thread:
+
+VThread-1: [=DB CALL=] 😴 parked     [=resume=result=]
+VThread-2:             [=API CALL=] 😴 parked  [=resume=]
+VThread-3:                      [=FILE READ=] 😴 [=resume=]
+
+→ Same 3 OS threads handle ALL of these efficiently!
+
+How Virtual Threads Work Internally
+
+
+JVM has a pool of "Carrier Threads" (= number of CPU cores)
+
+VThread-1 starts  → mounted on Carrier Thread-1
+VThread-1 blocks  → UNMOUNTED (parked), Carrier Thread-1 is FREE
+VThread-2 starts  → mounted on same Carrier Thread-1
+VThread-2 blocks  → UNMOUNTED
+VThread-1 resumes → mounted again on any available Carrier Thread
+
+Result: 4 carrier threads can run MILLIONS of virtual threads!
+
+
+
+//  Way 1 — Thread.ofVirtual()
+Thread vThread = Thread.ofVirtual()
+        .name("my-virtual-thread")
+        .start(() -> System.out.println("Hello from Virtual Thread!"));
+
+vThread.join();
+
+//  Way 2 — Thread.startVirtualThread() (quickest)
+Thread t = Thread.startVirtualThread(() ->
+        System.out.println("Quick virtual thread!"));
+t.join();
+
+//  Way 3 — Virtual Thread ExecutorService (most common in apps)
+try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    executor.submit(() -> System.out.println("Task 1"));
+    executor.submit(() -> System.out.println("Task 2"));
+} // auto shutdown
+
+//  Way 4 — Thread.Builder
+Thread.Builder builder = Thread.ofVirtual().name("worker-", 1);
+Thread t1 = builder.start(() -> System.out.println("Worker 1"));
+Thread t2 = builder.start(() -> System.out.println("Worker 2"));
+t1.join(); t2.join();
+
+
+
+
+public class VirtualThreadDemo {
+
+    public static void main(String[] args) {
+
+        System.out.println("Main Started");
+
+        Thread virtualThread = Thread.startVirtualThread(() -> {
+
+            System.out.println(
+                "Running inside Virtual Thread : "
+                + Thread.currentThread()
+            );
+
+            try {
+                Thread.sleep(3000);
+
+                System.out.println("Task Completed");
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        System.out.println("Main Ended");
+
+        try {
+            virtualThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+----
+public class MultipleVirtualThreads {
+
+    public static void main(String[] args) throws Exception {
+
+        for (int i = 1; i <= 10_000; i++) {
+
+            int taskNumber = i;
+
+            Thread.startVirtualThread(() -> {
+
+                System.out.println(
+                    "Task " + taskNumber +
+                    " : " + Thread.currentThread()
+                );
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        Thread.sleep(5000);
+
+        System.out.println("All Tasks Completed");
+    }
+}
+-----------------
+
+More about carrier thread
+
+A Carrier Thread is a real platform (OS) thread used internally by the JVM to execute Virtual Threads in Java 21.
+
+---
+Simple Definition
+
+> A Carrier Thread is the underlying OS thread that temporarily “carries” and executes a virtual thread.
+
+---
+Basic Idea
+
+Virtual threads are lightweight and **cannot directly run on CPU**.
+
+So JVM uses a small number of real threads called:
+
+ 
+Carrier Threads
+ 
+
+to actually execute them.
+
+---
+
+# 🔹 Architecture
+
+ 
+Virtual Thread
+       ↓
+JVM Scheduler
+       ↓
+Carrier Thread
+       ↓
+OS Thread
+       ↓
+CPU
+ 
+
+---
+Analogy
+
+Imagine:
+
+Virtual Thread = Passenger
+
+Very lightweight.
+
+---
+Carrier Thread = Bus
+
+Carries passengers.
+
+CPU = Road
+
+Where actual execution happens.
+
+---
+Important Concept
+
+Many virtual threads can share the same carrier thread.
+
+Example:
+
+ 
+1000 Virtual Threads
+        ↓
+   5 Carrier Threads
+ 
+
+This is why virtual threads scale so well.
+
+---
+ Example Flow
+
+Suppose this code:
+
+ 
+Thread.startVirtualThread(() -> {
+
+    System.out.println("Task Started");
+
+    Thread.sleep(5000);
+
+    System.out.println("Task Finished");
+
+});
+ 
+
+---
+
+Step-by-Step Internally
+
+Step 1 :  JVM creates a virtual thread.
+ 
+Step 2 : JVM assigns it to a carrier thread.
+
+Virtual Thread mounted on Carrier Thread
+Now it starts running.
+
+Step 3 : Virtual thread reaches:
+
+Thread.sleep(5000);
+
+This is a blocking operation.
+
+Step 4 : JVM pauses the virtual thread.
+
+Virtual Thread unmounted
+Carrier thread becomes FREE.
+
+Step 5 : Same carrier thread now runs another virtual thread.
+
+Step 6 : After 5 seconds:
+
+JVM remounts the paused virtual thread onto any available carrier thread.
+
+---
+
+Key Point
+
+Carrier threads are reused continuously.
+
+That means:
+
+ 
+Few OS Threads
+can execute
+Millions of Virtual Threads
+ 
+
+--What Type is Carrier Thread?
+
+Carrier thread is basically:
+ 
+Normal Platform Thread
+created internally by JVM.
+Usually from a special thread pool called: ForkJoinPool
+---
+
+Mounting and Unmounting
+
+---
+
+Mounting : Virtual Thread attached to Carrier Thread
+and starts running.
+
+---
+Unmounting
+
+When blocked:
+
+ 
+Virtual Thread detached
+Carrier Thread released
+ 
+
+Why Carrier Threads Matter
+
+Without carrier threads:
+
+* Virtual threads cannot execute
+* CPU cannot run them directly
+
+Carrier threads act like:
+
+ 
+Execution bridge
+between
+Virtual Thread and CPU
+ 
+
+---
+ Small Visualization
+
+---
+
+ Traditional Thread
+1 Java Thread
+      ↓
+1 OS Thread
+ 
+
+No sharing.
+
+---
+
+Virtual Thread
+
+ 
+10000 Virtual Threads
+        ↓
+   10 Carrier Threads
+        ↓
+   10 OS Threads
+ 
+
+Huge scalability.
+
+---
+ 
+Q: Is Carrier Thread same as Virtual Thread?
+
+❌ No.
+
+| Virtual Thread    | Carrier Thread       |
+| ----------------- | -------------------- |
+| Lightweight       | Real OS thread       |
+| Managed by JVM    | Platform thread      |
+| Millions possible | Few only             |
+| Paused/resumed    | Executes actual work |
+
+---
+Another Important Point
+
+If virtual thread performs some operations like:
+
+* synchronized block
+* native call
+* blocking OS operation
+
+sometimes it may become:
+
+Pinned to Carrier Thread
+ 
+
+meaning carrier thread cannot be released temporarily.
+
+This is called: Thread Pinning
+
+ 
+A Carrier Thread is a real platform thread used by the JVM to execute and manage virtual threads efficiently.
